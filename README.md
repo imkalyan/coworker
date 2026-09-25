@@ -1,92 +1,115 @@
 # coworker
 
-Yes. I’d frame this as a Team Engineering Agent rather than just a coding agent.
+Absolutely — here’s a polished README-ready version that positions this as an engineering platform, not just another coding agent.
 
-The interesting part isn’t “AI writes code.” The product is:
+Team Engineering Agent
 
-Give the agent a business/engineering requirement → it discovers the team’s approved engineering knowledge → decomposes the work → creates Jira → changes the right repositories → validates the changes → fixes automated findings → creates PRs → stops at human review.
+From requirement to review-ready Pull Request — using your team’s engineering knowledge.
 
-And the fact that each team can onboard its own project skills makes this much more interesting than another generic coding agent.
+Team Engineering Agent is an AI-powered engineering execution platform that turns a software requirement into review-ready code changes across one or more repositories.
 
-1. The core idea
-
-Think of it as a virtual engineering coworker for a team.
-
-                    ┌─────────────────────────┐
-                    │       USER / DEV        │
-                    │                         │
-                    │ "Add support for X"     │
-                    └────────────┬────────────┘
-                                 │
-                                 ▼
-                    ┌─────────────────────────┐
-                    │   TEAM ENGINEERING      │
-                    │        AGENT             │
-                    └────────────┬────────────┘
-                                 │
-                ┌────────────────┼─────────────────┐
-                ▼                ▼                 ▼
-          Requirement       Skill Registry     Project Graph
-           Analyzer         SME-approved       repos/deps/
-                              knowledge          services
-                │                │                 │
-                └────────────────┼─────────────────┘
-                                 ▼
-                       ┌─────────────────┐
-                       │ Task Decomposer │
-                       └────────┬────────┘
-                                │
-              ┌─────────────────┼──────────────────┐
-              ▼                 ▼                  ▼
-          Jira Task A       Jira Task B        Jira Task C
-          Repo A            Repo B             Repo C
-              │                 │                  │
-              ▼                 ▼                  ▼
-          Implement         Implement          Implement
-              │                 │                  │
-              └─────────────────┼──────────────────┘
-                                ▼
-                       Build / Test / Sonar
-                                │
-                         ┌──────┴──────┐
-                         │             │
-                       FAIL          PASS
-                         │             │
-                         ▼             ▼
-                    Agent fixes    Create PR
-                         │             │
-                         └──────►──────┘
-                                      │
-                                      ▼
-                              👤 HUMAN REVIEW
-
-The PR is the terminal point.
-
-The agent does not merge.
+It combines team-owned engineering skills, intelligent model routing, MCP, developer tooling, CI/CD, Jira, SonarQube, and Git workflows to automate the repetitive parts of the software development lifecycle while keeping human engineers in control of the final code review and merge decision.
 
 ⸻
 
-2. The killer concept: Project Skills
+The Vision
 
-This is what I’d make the differentiator.
+A developer should be able to provide a requirement such as:
 
-Instead of giving the LLM a giant generic system prompt, every engineering team owns a Skill Pack.
+Add support for real-time margin adjustment events for options expiry.
 
-For example:
+And the engineering agent should be able to:
 
-rtm/
-├── architecture/
-├── coding-standards/
-├── kafka/
-├── margin-calculation/
-├── database/
-├── testing/
-├── deployment/
-├── observability/
-├── migration/
-└── runbooks/
+Requirement
+    ↓
+Understand requirement
+    ↓
+Identify affected projects
+    ↓
+Load SME-approved project skills
+    ↓
+Create implementation plan
+    ↓
+Create Jira tasks
+    ↓
+Implement changes
+    ↓
+Generate / update tests
+    ↓
+Run build & tests
+    ↓
+Run SonarQube
+    ↓
+Resolve automated quality issues
+    ↓
+Execute CI/CD pipeline
+    ↓
+Create Pull Request(s)
+    ↓
+         👤 HUMAN REVIEW
 
-Each skill describes things the agent is allowed and expected to know.
+The agent does not merge the Pull Request.
+
+The final endpoint is always human review.
+
+⸻
+
+Why?
+
+Modern coding agents are becoming increasingly capable at writing code, but enterprise engineering involves much more than generating code.
+
+A typical engineering task may require:
+
+* Understanding existing architecture
+* Finding the correct repositories
+* Following team-specific coding patterns
+* Understanding internal frameworks
+* Creating Jira tickets
+* Modifying multiple services
+* Writing tests
+* Running builds
+* Resolving SonarQube findings
+* Running CI/CD pipelines
+* Investigating failures
+* Creating Pull Requests
+* Maintaining traceability between requirement, Jira, code and PR
+
+Different engineering teams also have different rules, patterns and domain knowledge.
+
+Team Engineering Agent aims to provide an enterprise engineering execution layer that understands those differences.
+
+⸻
+
+Core Concepts
+
+1. Team-Owned Engineering Skills
+
+Every engineering team can onboard its own project skills.
+
+A skill represents approved engineering knowledge that the agent can use while implementing a requirement.
+
+Examples:
+
+@rtm.kafka
+@rtm.margin-calculation
+@rtm.database
+@rtm.testing
+@rtm.mainframe-migration
+
+A skill can contain:
+
+* Engineering standards
+* Architecture patterns
+* Coding patterns
+* Approved libraries
+* Examples
+* Anti-patterns
+* Testing requirements
+* Validation commands
+* Deployment information
+* Runbooks
+* Domain knowledge
+* Repository-specific rules
 
 Example:
 
@@ -100,11 +123,10 @@ scope:
     - rtm-trade-consumer
     - rtm-margin-engine
 rules:
-  - "Use company Kafka wrapper"
-  - "Do not instantiate KafkaConsumer directly"
-  - "Use manual offset commit"
-  - "Partition key must be tradeReference"
-  - "All consumers require DLQ configuration"
+  - Use the approved Kafka abstraction
+  - Use manual offset commits
+  - Use tradeReference as the partition key
+  - Configure DLQ for failures
 testing:
   required:
     - unit
@@ -115,214 +137,344 @@ validation:
     - ./gradlew test
     - ./gradlew integrationTest
     - ./gradlew sonar
-references:
-  - architecture/kafka.md
-  - patterns/consumer.md
 
-Now the agent isn’t simply asking:
-
-“What code would a good Java developer write?”
-
-It’s asking:
-
-“What code would this team approve?”
-
-That’s a huge distinction.
-
-⸻
-
-3. Skill governance
-
-I’d make SME approval a first-class concept.
-
-Every skill has:
+Skills are versioned and can follow a governance lifecycle:
 
 DRAFT
-   ↓
+  ↓
 REVIEW
-   ↓
+  ↓
 SME APPROVED
-   ↓
+  ↓
 ACTIVE
-   ↓
+  ↓
 DEPRECATED
 
-And ideally:
-
-Skill
- ├── owner
- ├── SME approvers
- ├── version
- ├── applicable repos
- ├── applicable services
- ├── rules
- ├── examples
- ├── forbidden patterns
- ├── validation commands
- └── change history
-
-This gives you an interesting governance model:
-
-AI autonomy is constrained by institutional knowledge.
-
-That’s much more compelling for a bank than “let an LLM modify our repositories.”
+This allows teams to control what engineering practices the AI is allowed to use.
 
 ⸻
 
-4. The CLI
+2. Intelligent Model Router
 
-I’d make the CLI the primary developer experience.
+The platform does not use the most expensive model for every task.
 
-Something like:
+Instead, a Model Router selects the appropriate model based on task complexity.
 
-$ team-agent implement "Add support for XYZ margin adjustment"
+                  MODEL ROUTER
+                       │
+        ┌──────────────┼──────────────┐
+        ▼              ▼              ▼
+     Small           Medium        Reasoning
+     Model            Model          Model
 
-The agent responds:
+Typical routing
 
-Analyzing requirement...
-Detected:
-  • RTM Margin Engine
-  • Trade Service
-  • Account Service
-Applicable skills:
-  ✓ margin-calculation@3.2
-  ✓ kafka-events@2.1
-  ✓ postgres-patterns@1.8
-  ✓ testing-standard@4.0
-Proposed implementation:
-  RTM-8421
-  ├── margin-engine
-  │   ├── Add MarginAdjustmentCalculator
-  │   └── Add unit/integration tests
-  │
-  ├── trade-service
-  │   └── Add MarginAdjustment event
-  │
-  └── account-service
-      └── Consume MarginAdjustment event
-3 Jira tasks
-3 repositories
-3 pull requests
-Proceed?
+Task	Model Tier
+Requirement classification	Small
+Jira description	Small
+Skill retrieval	Small
+Repository discovery	Small
+Code search	Small
+Simple code change	Medium
+Test generation	Medium
+PR description	Small
+Architecture analysis	Reasoning
+Cross-repository decomposition	Reasoning
+Complex bug investigation	Reasoning
+Complex Sonar remediation	Reasoning
+Complex pipeline failure	Reasoning
 
-The user says:
+The goal is:
 
-yes
-
-Then:
-
-Creating Jira tickets...
-✓ RTM-8421
-✓ RTM-8422
-✓ RTM-8423
-Implementation started...
-[1/3] trade-service
-  ✓ code generated
-  ✓ tests added
-  ✓ tests passed
-  ✓ sonar passed
-  ✓ PR created
-[2/3] account-service
-  ✓ code generated
-  ✓ tests added
-  ⚠ sonar: 3 issues
-  Attempting automated remediation...
-  ✓ 3 issues resolved
-  ✓ tests passed
-  ✓ sonar passed
-  ✓ PR created
-[3/3] margin-engine
-  ✓ code generated
-  ✓ tests added
-  ✓ pipeline passed
-  ✓ PR created
-
-Final:
-
-Implementation complete.
-Jira:
-  RTM-8421
-  RTM-8422
-  RTM-8423
-Pull Requests:
-  trade-service    → PR #1832
-  account-service  → PR #921
-  margin-engine    → PR #4721
-Validation:
-  Tests       ✓
-  Build       ✓
-  Sonar       ✓
-  Pipeline    ✓
-Human review required.
-Nothing has been merged.
-
-That’s a very clean endpoint.
+Use the cheapest model that can reliably complete the task.
 
 ⸻
 
-5. But the CLI shouldn’t actually do everything itself
+3. Predictable AI Consumption
 
-This is where MCP becomes powerful.
+A key design goal is predictable AI usage for common engineering tasks.
 
-I’d separate the system into:
+For the normal execution path:
 
-Agent
+Requirement
+    ↓
+Standard task graph
+    ↓
+Predictable model routing
+    ↓
+Predictable AI consumption
 
-The reasoning/orchestration layer.
+AI usage may increase when:
 
-MCP Server
+* A complex problem requires deeper reasoning
+* Tests repeatedly fail
+* Sonar remediation requires architectural changes
+* CI/CD pipelines fail
+* The agent needs to retry an implementation
+* A user requests implementation changes
+* The user provides additional iterations
 
-The standardized engineering interface.
+Conceptually:
 
-Enterprise tools
+Baseline AI Cost
+        +
+Failure Recovery Cost
+        +
+User Iteration Cost
+        =
+Total AI Cost
 
-Jira, Git, CI/CD, Sonar, artifact repositories, documentation, etc.
-
-Architecture:
-
-                    Claude Code
-                        │
-                    Codex / IDE
-                        │
-                    VS Code
-                        │
-                 team-agent CLI
-                        │
-                        ▼
-                ┌───────────────┐
-                │ Team Agent    │
-                │ MCP Gateway   │
-                └───────┬───────┘
-                        │
-             ┌──────────┼──────────┐
-             ▼          ▼          ▼
-          Jira MCP    Git MCP    CI MCP
-             │          │          │
-             ▼          ▼          ▼
-           Jira       GitHub/     Jenkins/
-                      GitLab      GitHub Actions
-                                  etc.
-                        │
-             ┌──────────┼──────────┐
-             ▼          ▼          ▼
-          Sonar MCP  Artifact    Knowledge
-                     MCP         MCP
-
-This means your agent isn’t locked to your CLI.
-
-Any coding agent capable of MCP could potentially use your engineering platform.
+This creates a predictable baseline while allowing the platform to spend additional reasoning capacity when the problem actually requires it.
 
 ⸻
 
-6. MCP tools I’d expose
+4. Adaptive Model Escalation
 
-This is where I’d get quite opinionated.
+The agent starts with the appropriate lower-cost model and escalates when necessary.
 
-Don’t expose one giant:
+             Small Model
+                  │
+                  ▼
+               Attempt
+                  │
+           ┌──────┴──────┐
+           │             │
+          PASS          FAIL
+           │             │
+           ▼             ▼
+        Continue      Medium Model
+                         │
+                      Attempt
+                         │
+                   ┌─────┴─────┐
+                   │           │
+                  PASS        FAIL
+                   │           │
+                   ▼           ▼
+                Continue   Reasoning Model
 
-execute_everything()
+This prevents expensive reasoning models from becoming the default for simple engineering operations.
 
-Expose granular capabilities.
+⸻
+
+5. Multi-Repository Engineering
+
+A single requirement can affect multiple projects.
+
+For example:
+
+Requirement
+     │
+     ▼
+Dependency Analysis
+     │
+     ├── Trade Service
+     │       └── Repository A
+     │
+     ├── Position Service
+     │       └── Repository B
+     │
+     ├── Margin Engine
+     │       └── Repository C
+     │
+     └── Reporting Service
+             └── Repository D
+
+The agent can create separate implementation tasks and Pull Requests:
+
+                  Master Requirement
+                         │
+              ┌──────────┼──────────┐
+              ▼          ▼          ▼
+           Task A      Task B      Task C
+           Repo A      Repo B      Repo C
+              │          │          │
+             PR A       PR B       PR C
+
+The relationship between the requirement, Jira tasks and Pull Requests is maintained throughout the execution.
+
+⸻
+
+6. Jira Integration
+
+The agent can convert a requirement into an actionable Jira hierarchy.
+
+Example:
+
+RTM-8420
+Real-time margin adjustment support
+├── RTM-8421
+│   Trade event changes
+│
+├── RTM-8422
+│   Position service changes
+│
+└── RTM-8423
+    Margin engine changes
+
+Each task contains:
+
+* Requirement context
+* Implementation details
+* Acceptance criteria
+* Relevant engineering skills
+* Affected repository
+* Testing requirements
+* Dependencies
+
+⸻
+
+7. Engineering Execution
+
+For each task, the agent can:
+
+Find Repository
+      ↓
+Create Branch
+      ↓
+Understand Existing Code
+      ↓
+Load Relevant Skills
+      ↓
+Create Implementation Plan
+      ↓
+Modify Code
+      ↓
+Generate / Update Tests
+      ↓
+Run Tests
+      ↓
+Run Build
+      ↓
+Run SonarQube
+      ↓
+Resolve Findings
+      ↓
+Run CI/CD Pipeline
+      ↓
+Create Pull Request
+
+The agent should operate within explicit permissions and repository policies.
+
+⸻
+
+8. Automated SonarQube Remediation
+
+SonarQube findings can be automatically classified and resolved where appropriate.
+
+For example:
+
+Sonar Finding
+      ↓
+Classify
+      │
+      ├── Simple/local fix
+      │        ↓
+      │     Small Model
+      │
+      └── Architectural/complex fix
+               ↓
+          Reasoning Model
+
+After every fix:
+
+Fix
+ ↓
+Test
+ ↓
+Sonar
+ ↓
+Pass → Continue
+Fail → Diagnose / Escalate
+
+The agent should operate with configurable retry and escalation limits to prevent uncontrolled execution.
+
+⸻
+
+9. Human-in-the-Loop
+
+The platform is designed around a clear boundary:
+
+AI executes. Humans review and decide.
+
+The agent can:
+
+* Create Jira
+* Modify code
+* Run tests
+* Fix quality issues
+* Run pipelines
+* Create PRs
+
+The agent does not automatically merge the Pull Request.
+
+Final ownership remains with the engineer.
+
+AI
+ │
+ ├── Analyze
+ ├── Plan
+ ├── Implement
+ ├── Validate
+ └── Create PR
+          │
+          ▼
+       HUMAN
+          │
+       Review
+          │
+    ┌─────┴─────┐
+    ▼           ▼
+  Approve     Request
+   / Merge    Changes
+
+⸻
+
+MCP Architecture
+
+The platform is designed to work as an MCP-based engineering capability.
+
+Coding tools such as IDE agents, Claude Code, Codex and other MCP-compatible clients can interact with the engineering platform without needing to understand the underlying enterprise tooling.
+
+                  Coding Tools
+                       │
+        ┌──────────────┼──────────────┐
+        ▼              ▼              ▼
+      IDE          Claude Code       Codex
+        │              │              │
+        └──────────────┼──────────────┘
+                       │
+                      MCP
+                       │
+              ┌────────▼────────┐
+              │ Team Engineering│
+              │     Agent       │
+              └────────┬────────┘
+                       │
+              ┌────────▼────────┐
+              │  Orchestrator   │
+              └────────┬────────┘
+                       │
+              ┌────────▼────────┐
+              │  Model Router   │
+              └────────┬────────┘
+                       │
+              ┌────────▼────────┐
+              │   Tool Gateway  │
+              └────────┬────────┘
+                       │
+       ┌───────────────┼────────────────┐
+       ▼               ▼                ▼
+      Git             Jira             CI/CD
+       │                                │
+       ▼                                ▼
+    SonarQube                       Pipelines
+
+⸻
+
+MCP Capabilities
+
+The platform can expose granular capabilities such as:
 
 Requirement
 
@@ -331,11 +483,10 @@ decompose_requirement()
 identify_projects()
 identify_skills()
 
-Knowledge
+Skills
 
 search_project_skills()
 get_skill()
-validate_skill()
 get_architecture()
 get_coding_standard()
 
@@ -350,139 +501,77 @@ link_jira()
 Repository
 
 find_repository()
-create_branch()
-read_repository()
 search_code()
+read_repository()
+create_branch()
 apply_patch()
 commit_changes()
 create_pr()
 
-Build
+Validation
 
 run_tests()
 run_build()
-run_integration_tests()
+run_sonar()
+get_sonar_findings()
 run_pipeline()
 get_pipeline_status()
 
-Quality
+Engineering Execution
 
-run_sonar()
-get_sonar_findings()
-apply_sonar_fix()
+implement_task()
+validate_task()
+create_pull_request()
 
-Review
-
-get_pr()
-get_pr_diff()
-get_review_comments()
-
-The agent can compose these.
+The MCP layer allows external coding agents to consume these capabilities while the Team Engineering Agent controls orchestration, model routing, skills and enterprise policies.
 
 ⸻
 
-7. The really interesting MCP primitive: implement_task
+CLI Experience
 
-You could also expose a higher-level tool:
+The primary developer interface can be a simple CLI.
 
-implement_task(
-    jira_id,
-    repository,
-    skill_set
-)
+engagent "Add support for real-time margin adjustment events"
 
-Internally:
+The agent analyzes the requirement:
 
-implement_task
-      │
-      ├── load Jira
-      ├── load skills
-      ├── inspect repo
-      ├── understand architecture
-      ├── plan
-      ├── implement
-      ├── test
-      ├── build
-      ├── sonar
-      ├── remediate
-      ├── pipeline
-      └── PR
+Analyzing requirement...
+Affected projects:
+  ✓ trade-service
+  ✓ position-service
+  ✓ margin-engine
+Applicable skills:
+  ✓ @rtm.kafka@2.1
+  ✓ @rtm.margin@3.4
+  ✓ @rtm.testing@4.2
+Proposed implementation:
+  3 Jira tasks
+  3 repositories
+  3 Pull Requests
+Continue? [Y/n]
 
-So external agents can operate at different abstraction levels.
+After execution:
 
-For example, Claude Code could simply say:
-
-Use the RTM engineering agent to implement RTM-8421.
-
-Your MCP server takes over.
-
-⸻
-
-8. Multi-repository orchestration
-
-This is probably one of the strongest parts of the idea.
-
-Requirement:
-
-“Support real-time margin adjustment for options expiry.”
-
-Agent determines:
-
-Requirement
-    │
-    ▼
-Dependency Graph
-    │
-    ├── Trade Service
-    │       └── Repo A
-    │
-    ├── Position Service
-    │       └── Repo B
-    │
-    ├── Margin Engine
-    │       └── Repo C
-    │
-    └── Reporting
-            └── Repo D
-
-Then:
-
-                    MASTER TASK
-                        │
-              ┌─────────┼─────────┐
-              ▼         ▼         ▼
-           TASK A     TASK B     TASK C
-           Repo A     Repo B     Repo C
-              │         │         │
-             PR A      PR B      PR C
-
-Each PR can have:
-
-Jira
-Requirement
-Affected component
-Skill versions
-Implementation summary
-Tests
-Pipeline
-Sonar
-Dependencies
-Risk
-
-And the agent maintains the relationship:
-
-RTM-8420
- ├── RTM-8421 → PR #123
- ├── RTM-8422 → PR #456
- └── RTM-8423 → PR #789
-
-This gives engineering leadership a requirement → code lineage.
+Implementation complete.
+Jira:
+  RTM-8420
+Pull Requests:
+  trade-service       PR #1832
+  position-service    PR #1833
+  margin-engine       PR #1834
+Validation:
+  Tests       ✓
+  Build       ✓
+  Sonar       ✓
+  Pipeline    ✓
+Nothing has been merged.
+Human review required.
 
 ⸻
 
-9. Don’t let the agent blindly edit code
+Agent State Machine
 
-I’d introduce an explicit state machine.
+The agent follows an explicit execution lifecycle:
 
 REQUIREMENT_RECEIVED
         ↓
@@ -508,266 +597,85 @@ PR_CREATED
         ↓
 HUMAN_REVIEW
 
-And failures:
+Failures can trigger controlled remediation:
 
 TEST_FAILURE
-     ↓
+      ↓
 DIAGNOSE
-     ↓
+      ↓
 FIX
-     ↓
+      ↓
 RETEST
 
-But importantly:
+with configurable:
 
-MAX_RETRY = N
-
-You don’t want an autonomous agent burning CI for hours.
-
-⸻
-
-10. Add a “confidence / escalation” mechanism
-
-This could be extremely useful in an enterprise.
-
-The agent should be able to say:
-
-I can implement this automatically.
-Confidence: HIGH
-Reason:
-  ✓ Known architecture
-  ✓ Existing implementation pattern found
-  ✓ SME-approved skill available
-  ✓ Test pattern available
-
-Or:
-
-Human decision required.
-Reason:
-  ⚠ Requirement affects margin calculation logic
-  ⚠ No approved skill exists for this calculation
-  ⚠ Existing implementations disagree
-I created the Jira analysis but did not modify code.
-
-This is much safer than forcing the agent to always produce code.
+max_attempts
+max_token_budget
+max_model_tier
+execution_timeout
 
 ⸻
 
-11. Skills should contain “examples”, not just documentation
+Engineering Context
 
-This is important.
+Each execution maintains a structured task state:
 
-A skill could have:
+Task
+ ├── Requirement
+ ├── Jira
+ ├── Skills + versions
+ ├── Implementation plan
+ ├── Model decisions
+ ├── Context retrieved
+ ├── Files changed
+ ├── Tests
+ ├── Sonar findings
+ ├── Pipeline executions
+ ├── User feedback
+ └── Pull Requests
 
-Kafka Consumer Skill
-Rules
-Patterns
-Anti-patterns
-Examples
-Tests
-Validation
+This allows subsequent user iterations to reuse existing context rather than restarting the entire reasoning process.
 
 For example:
 
-patterns:
-  preferred:
-    file: examples/TradeConsumer.java
-  producer:
-    file: examples/TradeProducer.java
-  retry:
-    file: examples/RetryableConsumer.java
-anti_patterns:
-    - examples/BadConsumer.java
-
-The agent can retrieve these during implementation.
-
-This effectively turns your existing engineering codebase into a team-specific coding model without having to train a model.
+Initial implementation
+        ↓
+User: "Use the existing margin pipeline instead"
+        ↓
+Delta analysis
+        ↓
+Re-plan affected components
+        ↓
+Modify only required changes
 
 ⸻
 
-12. The “Team Skill Registry”
+Security and Governance
 
-I would make this a separate platform.
+Enterprise engineering requires explicit boundaries.
 
-                    Skill Registry
-                         │
-       ┌─────────────────┼─────────────────┐
-       ▼                 ▼                 ▼
-      RTM              Equities           FX
-       │                 │                 │
-   Java Skill        Java Skill        Java Skill
-   Kafka Skill       Kafka Skill       MQ Skill
-   Margin Skill      Pricing Skill     FX Skill
-   DB Skill          DB Skill          DB Skill
-
-Each team owns their namespace.
-
-@rtm.kafka
-@rtm.margin
-@rtm.database
-@equities.pricing
-@equities.kafka
-@fx.rates
-@fx.messaging
-
-Then a requirement automatically resolves skills.
-
-⸻
-
-13. Skill inheritance
-
-You can even have:
-
-Enterprise
-   │
-   ├── Java Standards
-   ├── Security Standards
-   ├── Logging Standards
-   └── Testing Standards
-          │
-          ▼
-        RTM
-          │
-          ├── Kafka
-          ├── Margin
-          ├── Trade
-          └── Mainframe Migration
-
-So teams don’t need to reinvent enterprise skills.
-
-⸻
-
-14. Your existing Smart Regression Agent fits beautifully
-
-You already have the concept of a Smart Regression Agent.
-
-I’d actually make that another capability of the same engineering-agent platform.
-
-For example:
-
-Team Engineering Agent
-│
-├── Requirement Agent
-│
-├── Coding Agent
-│
-├── Test Agent
-│
-├── Regression Agent
-│
-├── Migration Agent
-│
-├── Incident Agent
-│
-└── Release Agent
-
-The common infrastructure is:
-
-Skills
-Memory
-MCP
-Tooling
-Permissions
-Observability
-Audit
-
-So you’re not building six independent agents.
-
-You’re building an Engineering Agent Platform.
-
-⸻
-
-15. A particularly powerful concept: Engineering Knowledge Graph
-
-Over time, the agent could construct:
-
-Requirement
-    ↓
-Jira
-    ↓
-Service
-    ↓
-Repository
-    ↓
-Code
-    ↓
-Kafka Topic
-    ↓
-Database
-    ↓
-Pipeline
-    ↓
-Deployment
-    ↓
-Runbook
-    ↓
-Owner
+The agent should operate through configurable permissions.
 
 Example:
 
-Margin Calculation
-      │
-      ├── margin-engine
-      │       ├── Git repo
-      │       ├── Kafka topics
-      │       ├── DB tables
-      │       └── deployment
-      │
-      ├── trade-service
-      │
-      └── account-service
-
-Now requirement analysis becomes much smarter.
-
-The agent isn’t merely doing semantic search.
-
-It knows:
-
-“Changing this Java class will affect this Kafka topic, which is consumed by these three services.”
-
-That’s where the platform starts becoming genuinely valuable.
-
-⸻
-
-16. Security model
-
-For a financial institution, I’d make this a core architectural feature rather than an afterthought.
-
-Every action gets a permission.
-
-READ_REPO             ✓
+READ_REPOSITORY       ✓
 CREATE_BRANCH         ✓
 WRITE_CODE            ✓
 CREATE_JIRA           ✓
+RUN_TESTS             ✓
 RUN_PIPELINE          ✓
 CREATE_PR             ✓
 MERGE_PR              ✗
-PROD_DEPLOY           ✗
+PRODUCTION_DEPLOY     ✗
 
-And potentially:
+All significant actions should be auditable.
 
-Skill says:
-    "Agent may modify repo"
-Policy says:
-    "Agent may modify repo only on feature branches"
-User says:
-    "Implement requirement"
-Result:
-    Agent can create branch + PR
-    Agent cannot merge
-
-That makes the human PR review boundary enforceable, not just a prompt instruction.
-
-⸻
-
-17. Audit trail
-
-Every action should produce an event:
+Example execution record:
 
 {
   "requirement": "Add XYZ",
   "agent": "rtm-engineering-agent",
-  "skill_versions": [
+  "skills": [
     "rtm.kafka@2.1",
     "rtm.margin@3.4"
   ],
@@ -775,284 +683,238 @@ Every action should produce an event:
     "margin-engine",
     "trade-service"
   ],
-  "jira": ["RTM-8421"],
-  "prs": ["PR-1832", "PR-921"],
+  "jira": [
+    "RTM-8421"
+  ],
+  "pull_requests": [
+    "PR-1832",
+    "PR-921"
+  ],
   "tests": "PASSED",
   "sonar": "PASSED",
   "pipeline": "PASSED",
   "merged": false
 }
 
-This becomes very useful for enterprise governance.
+⸻
+
+Model Routing Architecture
+
+The Model Router should treat model selection as an engineering optimization problem.
+
+Task
+ ↓
+Classify Complexity
+ ↓
+Estimate Context
+ ↓
+Evaluate Skill Confidence
+ ↓
+Check Previous Attempts
+ ↓
+Select Model
+ ↓
+Assign Budget
+ ↓
+Execute
+ ↓
+Evaluate Result
+ ↓
+Escalate if Required
+
+Routing can consider:
+
+* Task type
+* Complexity
+* Repository count
+* Files affected
+* Context size
+* Skill confidence
+* Previous failures
+* Number of iterations
+* Tool failures
+* Test failures
+* Sonar findings
+* Model reliability
+* Latency
+* AI cost
+
+The goal is not simply to minimize model cost.
+
+The goal is:
+
+Minimize cost per successfully completed engineering task.
 
 ⸻
 
-18. The CLI could eventually feel like this
+Observability
 
-$ engagent run
-╭────────────────────────────────────────────╮
-│       TEAM ENGINEERING AGENT               │
-│       RTM Engineering                      │
-╰────────────────────────────────────────────╯
-Requirement:
-> Add support for real-time margin adjustment
-> events for options expiry.
+The platform should track both engineering and AI metrics.
 
-Then:
+Engineering metrics
 
-🔎 Analyzing requirement
-🧠 Loading approved engineering skills
-🗺 Building dependency graph
-📋 Creating implementation plan
-Affected systems:
-  trade-service
-  margin-engine
-  position-service
-Skills:
-  ✓ @rtm.kafka@2.1
-  ✓ @rtm.margin@3.4
-  ✓ @rtm.testing@4.2
-  ✓ @enterprise.java@7.1
-Plan:
-  3 Jira tasks
-  3 repositories
-  3 PRs
-Continue? [Y/n]
+Requirements processed
+Jira tasks created
+Repositories modified
+PRs created
+PRs successfully validated
+Tests passed
+Pipeline success rate
+Sonar remediation rate
+Human iterations
 
-Then:
+AI metrics
 
-▶ RTM-8421 / trade-service
-  ✓ branch created
-  ✓ implementation
-  ✓ unit tests
-  ✓ integration tests
-  ✓ Sonar
-  ✓ pipeline
-  PR #1832 created
+AI credits / requirement
+AI credits / PR
+Tokens / task
+Model distribution
+Model escalation rate
+Retry rate
+Reasoning-model usage
+Cost by task type
+Cost by team
 
-And finally:
+Example:
 
-╭────────────────────────────────────────────╮
-│ IMPLEMENTATION COMPLETE                    │
-╰────────────────────────────────────────────╯
-Jira
-  RTM-8420
-Pull Requests
-  trade-service       PR #1832   ✓
-  position-service    PR #1833   ✓
-  margin-engine       PR #1834   ✓
-Quality
-  Tests               ✓
-  Sonar               ✓
-  Build               ✓
-  Pipeline            ✓
-Agent actions         47
-Automated fixes        8
-Human actions required 1
-→ Review PRs
+Engineering Agent Metrics
+PRs created                    1,240
+Successfully validated         1,103
+Average AI credits / PR           42k
+P50 AI credits / PR               31k
+P90 AI credits / PR               69k
+P99 AI credits / PR              180k
+Average user iterations / PR       0.7
+Average automated recoveries       1.3
+
+This makes AI consumption measurable and predictable.
 
 ⸻
 
-19. The killer developer experience
+Platform Architecture
 
-The real goal should eventually be:
+The platform can be organized into five major layers:
 
-Developer
-
-$ engagent "Add support for X"
-
-Agent
-
-I found 3 affected projects.
-I'll create:
-  3 Jira tasks
-  3 implementation branches
-  3 PRs
-Proceed?
-
-Developer
-
-yes
-
-Agent
-
-Done.
-Review:
-  PR #123
-  PR #456
-  PR #789
-
-That’s it.
-
-The developer doesn’t have to:
-
-read Jira template
-→ create Jira
-→ find repo
-→ understand architecture
-→ create branch
-→ code
-→ write tests
-→ run Gradle
-→ fix Sonar
-→ run pipeline
-→ monitor pipeline
-→ fix failure
-→ push
-→ create PR
-→ write PR description
-
-The agent handles the mechanical SDLC work while the engineer retains the design/review/merge decision.
+┌──────────────────────────────────────────────┐
+│                  EXPERIENCE                  │
+│ CLI / IDE / MCP / Chat / Coding Agents      │
+├──────────────────────────────────────────────┤
+│                 ORCHESTRATOR                 │
+│ Requirement → Plan → Tasks → Execution       │
+├──────────────────────────────────────────────┤
+│                  SKILL ENGINE                │
+│ Team Skills / SME Approval / Versioning      │
+├──────────────────────────────────────────────┤
+│                MODEL ROUTER                  │
+│ Small / Medium / Reasoning Models            │
+├──────────────────────────────────────────────┤
+│                  TOOL GATEWAY                 │
+│ Git / Jira / CI / Sonar / Docs / Artifacts   │
+├──────────────────────────────────────────────┤
+│               ENTERPRISE SYSTEMS             │
+│ GitHub / GitLab / Jira / Jenkins / Sonar etc │
+└──────────────────────────────────────────────┘
 
 ⸻
 
-20. I’d define the product around 5 layers
+Long-Term Vision
 
-┌─────────────────────────────────────────────┐
-│                EXPERIENCE                   │
-│ CLI / IDE / Chat / Claude Code / Codex      │
-├─────────────────────────────────────────────┤
-│                ORCHESTRATOR                 │
-│ Requirement → Plan → Tasks → Execution      │
-├─────────────────────────────────────────────┤
-│                SKILL ENGINE                 │
-│ Team skills / SME approval / versions       │
-├─────────────────────────────────────────────┤
-│                MCP TOOL LAYER               │
-│ Git / Jira / CI / Sonar / Docs / DB         │
-├─────────────────────────────────────────────┤
-│                ENTERPRISE                   │
-│ GitHub/GitLab | Jira | Jenkins | Sonar      │
-└─────────────────────────────────────────────┘
+The Team Engineering Agent can evolve from a coding agent into a broader Engineering Agent Platform.
 
-The MCP layer is the interoperability layer.
+Team Engineering Agent
+│
+├── Requirement Agent
+├── Coding Agent
+├── Test Agent
+├── Regression Agent
+├── Migration Agent
+├── Incident Agent
+└── Release Agent
 
-The Skill Engine is the institutional knowledge layer.
+All capabilities share:
 
-The Orchestrator is the intelligence layer.
+Skills
+Knowledge
+Model Router
+MCP
+Tooling
+Permissions
+Audit
+Observability
 
-The CLI/IDE is simply the interface.
+This creates a common engineering intelligence layer for teams while allowing every team to retain ownership of its domain-specific engineering knowledge.
 
 ⸻
 
-21. MVP I’d actually build
+Guiding Principles
 
-Don’t start with the entire platform.
+1. Human ownership
 
-Build:
+AI prepares changes. Engineers own the final decision.
 
-Phase 1 — Single repo
+2. Team knowledge over generic knowledge
+
+The agent should follow approved team practices rather than inventing new ones.
+
+3. Cheapest capable model
+
+Use expensive reasoning only when the task warrants it.
+
+4. Fail forward
+
+Use controlled retries, diagnosis and model escalation instead of blindly repeating the same operation.
+
+5. Multi-repository by design
+
+A requirement may naturally span multiple services and repositories.
+
+6. Everything is auditable
+
+Requirements, skills, model decisions, code changes, tests, pipelines and PRs should be traceable.
+
+7. MCP-first interoperability
+
+The engineering platform should be consumable by multiple coding agents and developer experiences.
+
+8. Predictable AI consumption
+
+Normal engineering workflows should have predictable AI usage, with additional consumption driven by complexity, failures and user iterations.
+
+⸻
+
+The End Goal
+
+The experience should eventually be as simple as:
+
+engagent "Implement <requirement>"
+
+Behind that single command:
 
 Requirement
     ↓
-Skill retrieval
+Team Knowledge
     ↓
-Code implementation
+Model Router
+    ↓
+Implementation Plan
+    ↓
+Jira
+    ↓
+Code
     ↓
 Tests
     ↓
 Sonar
     ↓
-PR
-
-CLI:
-
-engagent "Add XYZ"
-
-⸻
-
-Phase 2 — Jira
-
-Requirement
+CI/CD
     ↓
-Jira
+Pull Requests
     ↓
-Implementation
-    ↓
-PR
+👤 Engineer Review
 
-⸻
+The agent handles the execution.
+The team defines the skills.
+The model router controls the intelligence budget.
+The engineer owns the final decision.
 
-Phase 3 — MCP
-
-Expose:
-
-search_skills
-get_project_context
-implement_task
-run_tests
-run_pipeline
-create_pr
-
-Now Claude Code/Codex/other coding clients can consume your platform.
-
-⸻
-
-Phase 4 — Multi-repo
-
-Requirement
-       ↓
-Dependency analysis
-       ↓
-       ├── Repo A → PR A
-       ├── Repo B → PR B
-       └── Repo C → PR C
-
-⸻
-
-Phase 5 — Team Skill Marketplace
-
-Enterprise Skills
-      ↓
-Team Skills
-      ↓
-Project Skills
-
-with SME approval/versioning.
-
-⸻
-
-22. The bigger vision
-
-I wouldn’t position this internally as:
-
-“An AI coding agent.”
-
-That’s crowded and relatively easy to replicate.
-
-I’d position it as:
-
-“An enterprise engineering execution layer that converts approved requirements into reviewable software changes.”
-
-Or more simply:
-
-Requirement → Jira → Code → Validation → PR
-
-with team-specific engineering knowledge controlling how that work gets done.
-
-And MCP makes the really compelling extension:
-
-               Engineering Agent
-                       ▲
-                       │ MCP
-          ┌────────────┼────────────┐
-          │            │            │
-       Codex      Claude Code     IDE
-          │            │            │
-          └────────────┼────────────┘
-                       │
-                  Team Skills
-                       │
-          ┌────────────┼────────────┐
-          ▼            ▼            ▼
-        Jira          Git          CI/CD
-
-That means you don’t have to compete with coding agents. You can make your platform the enterprise engineering control plane that coding agents plug into.
-
-For an RTM environment specifically, the first killer demo I’d build would be:
-
-“Implement a new RTM event-driven requirement across 2–3 services using SME-approved Kafka, margin-calculation and testing skills, create the Jira hierarchy, generate separate PRs, run the full validation pipeline, automatically remediate Sonar/test issues within policy, and hand the engineer three review-ready PRs.”
-
-That is a much more compelling internal GenAI story than a generic “AI writes Java code.”
-
-Would you like to shape this next as an MVP architecture or as a concrete CLI/MCP command design?
+This is structured so you can paste it directly into README.md; the sections can also become the basis for the eventual architecture/design docs.
